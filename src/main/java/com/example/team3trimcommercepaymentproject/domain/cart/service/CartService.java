@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartGetResponse;
-import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemGetResponse;
+import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemResponse;
+import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartUpdateRequest;
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.Cart;
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartItemRepository;
@@ -55,15 +56,26 @@ public class CartService {
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-		List<CartItemGetResponse> items = cart.getCartItems().stream()
-			.map(CartItemGetResponse::from)
+		List<CartItemResponse> items = cart.getCartItems().stream()
+			.map(CartItemResponse::from)
 			.toList();
 
 		int totalAmount = items.stream()
-			.mapToInt(CartItemGetResponse::subtotal)
+			.mapToInt(CartItemResponse::subtotal)
 			.sum();
 
 		return new CartGetResponse(items, totalAmount);
+	}
+
+	@Transactional
+	public CartItemResponse updateQuantity(Long memberId, Long cartItemId, CartUpdateRequest request) {
+		CartItem item = cartItemRepository.findByMemberIdAndId(memberId, cartItemId).orElseThrow(
+			() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND)
+		);
+
+		item.updateQuantity(request.quantity());
+
+		return CartItemResponse.from(item);
 	}
 
 }
