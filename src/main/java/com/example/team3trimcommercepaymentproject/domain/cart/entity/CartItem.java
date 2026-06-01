@@ -3,6 +3,8 @@ package com.example.team3trimcommercepaymentproject.domain.cart.entity;
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,9 +63,7 @@ public class CartItem extends BaseEntity {
 	public void increaseQuantity() {
 		int increasedQuantity = this.quantity + 1;
 
-		if(increasedQuantity > product.getStockQuantity()) {
-			throw new RuntimeException("장바구니 상품 갯수 1개 추가 요청, 재고 초과");
-		}
+		checkQuantity(increasedQuantity);
 
 		this.quantity++;
 	}
@@ -73,7 +73,7 @@ public class CartItem extends BaseEntity {
 		int decreasedQuantity = this.quantity - 1;
 
 		if (decreasedQuantity < 1) {
-			throw new RuntimeException("장바구니 상품 갯수 1개 감소 요청, 1개 미만 담기 불가능");
+			throw new BusinessException(ErrorCode.INVALID_QUANTITY);
 		}
 
 		this.quantity--;
@@ -82,20 +82,21 @@ public class CartItem extends BaseEntity {
 	// 장바구니에 담은 수량을 quantity만큼 추가하는 메서드
 	public void addQuantity(Integer quantity) {
 		int totalQuantity = this.quantity + quantity;
-
-		if (totalQuantity > product.getStockQuantity()) {
-			throw new RuntimeException("장바구니 담기 요청, 재고 초과");
-		}
+		checkQuantity(quantity);
 
 		this.quantity = totalQuantity;
 	}
 
 	// 장바구니에 담은 수량을 수정하는 메서드
 	public void updateQuantity(Integer quantity) {
-		if (quantity > product.getStockQuantity()) {
-			throw new IllegalArgumentException("장바구니 재고 수량 변경 요청, 재고 초과");
-		}
+		checkQuantity(quantity);
 
 		this.quantity = quantity;
+	}
+
+	private void checkQuantity(Integer quantity) {
+		if (quantity > product.getStockQuantity()) {
+			throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK);
+		}
 	}
 }
