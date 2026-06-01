@@ -12,6 +12,8 @@ import com.example.team3trimcommercepaymentproject.domain.auth.dto.SignupRequest
 import com.example.team3trimcommercepaymentproject.domain.auth.dto.SignupResponse;
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.member.repository.MemberRepository;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 import com.example.team3trimcommercepaymentproject.global.jwt.JwtProvider;
 
 import jakarta.validation.Valid;
@@ -28,7 +30,7 @@ public class AuthService {
 	@Transactional
 	public SignupResponse signup(@Valid SignupRequest request) {
 		if (memberRepository.existsByEmail(request.email())) {
-			throw new IllegalStateException("중복된 이메일");
+			throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
 		}
 		Member member = new Member(
 			request.email(),
@@ -49,10 +51,10 @@ public class AuthService {
 	@Transactional
 	public LoginResponse login(LoginRequest request) {
 		Member member = memberRepository.findByEmail(request.email())
-			.orElseThrow(() -> new IllegalStateException("존재하지않는 회원"));
+			.orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
 		if (!passwordEncoder.matches(request.password(), member.getEncryptedPassword())) {
-			throw new IllegalStateException("비밀번호가 틀림");
+			throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
 		}
 		String token = jwtProvider.createToken(member.getId(), member.getEmail());
 		return new LoginResponse(token, "Bearer", jwtProvider.getExpiresIn(), toMemberInfo(member));
