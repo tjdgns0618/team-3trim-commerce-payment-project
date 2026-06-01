@@ -18,6 +18,12 @@ public class ProductService {
 
 	private final ProductRepository productRepository;
 
+	public Product findProductEntity(Long productId) {
+		return productRepository.findById(productId).orElseThrow(
+			() -> new RuntimeException("존재하지 않는 상품입니다.")
+		);
+	}
+
 	@Transactional(readOnly = true)
 	public ProductListGetResponse getAll(Pageable pageable, ProductFilter filter) {
 		Page<Product> productPage = productRepository.findAllByFilter(filter, pageable);
