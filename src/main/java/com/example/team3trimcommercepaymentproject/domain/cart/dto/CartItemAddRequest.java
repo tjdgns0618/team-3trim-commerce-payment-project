@@ -1,4 +1,13 @@
 package com.example.team3trimcommercepaymentproject.domain.cart.dto;
 
-public record CartItemAddRequest(Long productId, Integer quantity) {
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+public record CartItemAddRequest(
+	@NotNull
+	Long productId,
+
+	@Min(value = 1, message = "수량은 1 이상이어야 합니다")
+	Integer quantity
+) {
 }
