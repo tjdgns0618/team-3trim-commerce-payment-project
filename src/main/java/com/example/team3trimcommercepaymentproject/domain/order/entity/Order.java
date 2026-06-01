@@ -1,5 +1,6 @@
 package com.example.team3trimcommercepaymentproject.domain.order.entity;
 
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import jakarta.persistence.*;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 
 @Entity
@@ -91,6 +93,7 @@ public class Order {
     public void cancel() {
         this.status = OrderStatus.CANCELED;
     }
+
 
     @PrePersist
     protected void onCreate() {

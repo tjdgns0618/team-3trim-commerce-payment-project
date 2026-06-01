@@ -72,4 +72,6 @@ public class Product extends BaseEntity {
 		ON_SALE,
 		SOLD_OUT
 	}
+
+
 }
