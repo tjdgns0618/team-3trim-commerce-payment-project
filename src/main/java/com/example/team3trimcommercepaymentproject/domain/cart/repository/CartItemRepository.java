@@ -1,5 +1,6 @@
 package com.example.team3trimcommercepaymentproject.domain.cart.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 	Optional<CartItem> findByMemberIdAndProductId(Long memberId, Long productId);
 
 	Optional<CartItem> findByMemberIdAndId(Long memberId, Long id);
+
+	Optional<List<CartItem>> findAllByMemberId(Long memberId);
 }
