@@ -3,6 +3,7 @@ package com.example.team3trimcommercepaymentproject.domain.cart.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -39,4 +40,8 @@ public class Cart extends BaseEntity {
 	// 벌크 삭제 쿼리 (JPQL을 통해서 한번에 삭제하는게 더 효과적일 것 같다.) 고려
 	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartItem> cartItems = new ArrayList<>();
+
+	public Cart(Member member) {
+		this.member = member;
+	}
 }

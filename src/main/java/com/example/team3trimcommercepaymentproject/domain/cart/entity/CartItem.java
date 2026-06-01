@@ -1,5 +1,6 @@
 package com.example.team3trimcommercepaymentproject.domain.cart.entity;
 
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
 
@@ -13,10 +14,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 // uniqueConstraints : 복합 UNIQUE 제약
 // 이유 : 같은 사용자가 같은 상품을 장바구니에 중복으로 담아도 cart_id, product_id 조합당 행이 1개만 존재하도록 DB 레벨에서 원천 차단
 // 그냥 속성에서 Column에 unique 설정을 하면 안되는 이유
@@ -45,6 +49,13 @@ public class CartItem extends BaseEntity {
 
 	@Column(nullable = false)
 	private Integer quantity;
+
+	public CartItem(Member member, Cart cart, Product product, Integer quantity) {
+		this.member = member;
+		this.cart = cart;
+		this.product = product;
+		this.quantity = quantity;
+	}
 
 	// 장바구니에 담은 수량을 한개 늘리는 메서드
 	public void increaseQuantity() {
