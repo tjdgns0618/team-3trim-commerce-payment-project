@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 
-import jakarta.validation.constraints.Email;
-
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	boolean existsByEmail(String email);

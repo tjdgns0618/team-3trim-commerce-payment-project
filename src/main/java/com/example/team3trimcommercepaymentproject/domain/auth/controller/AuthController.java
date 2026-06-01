@@ -14,7 +14,6 @@ import com.example.team3trimcommercepaymentproject.domain.auth.service.AuthServi
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 @RestController
 @RequiredArgsConstructor

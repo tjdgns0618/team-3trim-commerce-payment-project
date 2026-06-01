@@ -25,7 +25,6 @@ import tools.jackson.databind.ObjectMapper;
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
-	private final ObjectMapper objectMapper;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) {
