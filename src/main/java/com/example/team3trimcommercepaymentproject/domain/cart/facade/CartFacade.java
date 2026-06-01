@@ -12,6 +12,8 @@ import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.member.service.MemberService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.domain.product.service.ProductService;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +29,7 @@ public class CartFacade {
 	public CartItemAddResponse addItem(Long memberId, CartItemAddRequest request) {
 		Product product = productService.findProductEntity(request.productId());
 		if (product.getSaleStatus() == Product.SaleStatus.SOLD_OUT) {
-			throw new RuntimeException("상품 품절");
+			throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK);
 		}
 
 		Member member = memberService.findMemberEntity(memberId);

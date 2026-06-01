@@ -9,6 +9,8 @@ import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductFil
 import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductListGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.domain.product.repository.ProductRepository;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +22,7 @@ public class ProductService {
 
 	public Product findProductEntity(Long productId) {
 		return productRepository.findById(productId).orElseThrow(
-			() -> new RuntimeException("존재하지 않는 상품입니다.")
+			() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND)
 		);
 	}
 

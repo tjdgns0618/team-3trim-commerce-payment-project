@@ -13,6 +13,8 @@ import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartItemRepository;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartRepository;
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +53,7 @@ public class CartService {
 	@Transactional(readOnly = true)
 	public CartGetResponse getAllCartItem(Long memberId) {
 		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new RuntimeException("장바구니가 존재하지 않습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
 		List<CartItemGetResponse> items = cart.getCartItems().stream()
 			.map(CartItemGetResponse::from)

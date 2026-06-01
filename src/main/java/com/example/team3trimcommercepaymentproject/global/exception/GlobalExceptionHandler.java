@@ -6,6 +6,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.example.team3trimcommercepaymentproject.global.response.ApiResponse;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -13,19 +15,26 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BusinessException.class)
-	public ResponseEntity<Void> handleBusinessException(BusinessException e) {
+	public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
 		ErrorCode code = e.getErrorCode();
-		return ResponseEntity.status(code.getStatus()).build();
+		return ResponseEntity.status(code.getStatus())
+			.body(ApiResponse.error(code, e.getMessage()));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Void> handleValidation(MethodArgumentNotValidException e) {
-		return ResponseEntity.badRequest().build();
+	public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException e) {
+		String message = e.getBindingResult().getFieldErrors().stream()
+			.map(err -> err.getField() + ": " + err.getDefaultMessage())
+			.reduce((a, b) -> a + ", " + b)
+			.orElse("입력값이 올바르지 않습니다");
+		return ResponseEntity.badRequest()
+			.body(ApiResponse.error(ErrorCode.INVALID_INPUT, message));
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Void> handleException(Exception e) {
+	public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
 		log.error("서버 오류 발생", e);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(ApiResponse.error(ErrorCode.INTERNAL_ERROR));
 	}
 }
