@@ -12,6 +12,7 @@ import com.example.team3trimcommercepaymentproject.domain.cart.entity.Cart;
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartItemRepository;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartRepository;
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,8 @@ public class CartService {
 	private final CartItemRepository cartItemRepository;
 	private final CartRepository cartRepository;
 
-	public Cart getOrCreateCart(Long memberId) {
-		return cartRepository.findByMemberId(memberId)
+	public Cart getOrCreateCart(Member member) {
+		return cartRepository.findByMemberId(member.getId())
 			.orElseGet(() -> cartRepository.save(new Cart(member)));
 	}
 

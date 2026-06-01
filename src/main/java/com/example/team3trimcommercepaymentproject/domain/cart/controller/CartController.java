@@ -1,9 +1,9 @@
 package com.example.team3trimcommercepaymentproject.domain.cart.controller;
 
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemAddRequest;
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemAddResponse;
-import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.cart.facade.CartFacade;
 import com.example.team3trimcommercepaymentproject.domain.cart.service.CartService;
 
@@ -32,7 +31,7 @@ public class CartController {
 
 	@PostMapping
 	public ResponseEntity<CartItemAddResponse> addItem(
-		@RequestParam Long memberId,
+		@AuthenticationPrincipal Long memberId,
 		@RequestBody CartItemAddRequest request
 	) {
 		CartItemAddResponse response = cartFacade.addItem(memberId, request);
@@ -41,7 +40,7 @@ public class CartController {
 	}
 
 	@GetMapping
-	public ResponseEntity<CartGetResponse> getAllCartItem(@RequestParam Long memberId) {
+	public ResponseEntity<CartGetResponse> getAllCartItem(@AuthenticationPrincipal Long memberId) {
 		CartGetResponse response = cartService.getAllCartItem(memberId);
 
 		return ResponseEntity.status(HttpStatus.OK).body(response);

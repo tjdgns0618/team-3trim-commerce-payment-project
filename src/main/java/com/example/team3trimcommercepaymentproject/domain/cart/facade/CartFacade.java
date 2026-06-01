@@ -8,6 +8,8 @@ import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemAddRe
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.Cart;
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.service.CartService;
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
+import com.example.team3trimcommercepaymentproject.domain.member.service.MemberService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.domain.product.service.ProductService;
 
@@ -19,14 +21,21 @@ public class CartFacade {
 
 	private final CartService cartService;
 	private final ProductService productService;
+	private final MemberService memberService;
 
 	@Transactional
 	public CartItemAddResponse addItem(Long memberId, CartItemAddRequest request) {
-		Cart cart = cartService.getOrCreateCart(memberId);
-		// Member member = memberService.findMemberEntity(memberId);
 		Product product = productService.findProductEntity(request.productId());
-		CartItem cartItem = new CartItem(member, product, request.quantity());
+		if (product.getSaleStatus() == Product.SaleStatus.SOLD_OUT) {
+			throw new RuntimeException("상품 품절");
+		}
+
+		Member member = memberService.findMemberEntity(memberId);
+		Cart cart = cartService.getOrCreateCart(member);
+
+		CartItem cartItem = new CartItem(member, cart, product, request.quantity());
 		Long cartItemId = cartService.addItem(cartItem);
+
 		return new CartItemAddResponse(cartItemId);
 	}
 
