@@ -64,7 +64,7 @@ public class Payment {
         this.status = PaymentStatus.READY;
     }
 
-    void assignOrder(Order order) {
+    public void assignOrder(Order order) {
         this.order = order;
     }
 

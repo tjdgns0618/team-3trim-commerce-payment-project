@@ -1,6 +1,7 @@
 package com.example.team3trimcommercepaymentproject.domain.order.entity;
 
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
+import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

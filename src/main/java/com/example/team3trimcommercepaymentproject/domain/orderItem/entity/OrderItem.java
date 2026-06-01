@@ -65,7 +65,7 @@ public class OrderItem {
         this.subtotalAmount = priceSnapshot * quantity;
     }
 
-    void assignOrder(Order order) {
+    public void assignOrder(Order order) {
         this.order = order;
     }
 
