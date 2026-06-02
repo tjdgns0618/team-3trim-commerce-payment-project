@@ -4,7 +4,6 @@ import com.example.team3trimcommercepaymentproject.domain.cart.entity.Cart;
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartItemRepository;
 import com.example.team3trimcommercepaymentproject.domain.cart.repository.CartRepository;
-import com.example.team3trimcommercepaymentproject.domain.member.repository.MemberRepository;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderCancelRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderCreateRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderPreviewRequest;
@@ -15,11 +14,9 @@ import com.example.team3trimcommercepaymentproject.domain.order.repository.Order
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderItemResponse;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderPreviewItemResponse;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
-import com.example.team3trimcommercepaymentproject.domain.orderItem.repository.OrderItemRepository;
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentCreateResponse;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
-import com.example.team3trimcommercepaymentproject.domain.product.repository.ProductRepository;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +49,7 @@ public class OrderService {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId);
 
         if (cartItems.isEmpty()) {
             throw new BusinessException(ErrorCode.CART_EMPTY);
@@ -117,8 +113,8 @@ public class OrderService {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
+        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId);
+        if (cartItems.isEmpty()) throw new BusinessException(ErrorCode.CART_EMPTY);
 
         List<CartItem> targetCartItems = selectCartItems(cartItems, request.cartItemIds());
 

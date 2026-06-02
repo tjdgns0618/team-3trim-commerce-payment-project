@@ -27,7 +27,7 @@ public class Cart extends BaseEntity {
 
 	// 한 사용자마다 한 장바구니만 가지고 있기 때문에 1대1 연관관계 매핑
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id", nullable = false)
+	@JoinColumn(name = "member_id", nullable = false, unique = true)
 	private Member member;
 
 	public Cart(Member member) {

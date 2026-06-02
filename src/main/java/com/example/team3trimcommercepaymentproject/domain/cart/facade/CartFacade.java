@@ -1,12 +1,9 @@
 package com.example.team3trimcommercepaymentproject.domain.cart.facade;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemAddRequest;
 import com.example.team3trimcommercepaymentproject.domain.cart.dto.CartItemAddResponse;
-import com.example.team3trimcommercepaymentproject.domain.cart.entity.Cart;
-import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 import com.example.team3trimcommercepaymentproject.domain.cart.service.CartService;
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.member.service.MemberService;
@@ -26,18 +23,18 @@ public class CartFacade {
 	private final MemberService memberService;
 
 	// 다른 서비스를 이용하는 Cart의 로직을 구현하기 위해서 Facade에서 구현
-	@Transactional
 	public CartItemAddResponse addItem(Long memberId, CartItemAddRequest request) {
+		// 상품 조회 트랜잭션
 		Product product = productService.findProductEntity(request.productId());
 		if (product.getSaleStatus() == Product.SaleStatus.SOLD_OUT) {
 			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
 		}
 
+		// 회원 조회 트랜잭션
 		Member member = memberService.findMemberEntity(memberId);
-		Cart cart = cartService.getOrCreateCart(member);
 
-		CartItem cartItem = new CartItem(member, cart, product, request.quantity());
-		Long cartItemId = cartService.addItem(cartItem);
+		// 장바구니 생성(있을 시 조회만), 장바구니에 상품 추가(저장/쓰기)
+		Long cartItemId = cartService.getOrCreateCartAndAddItem(member, product, request.quantity());
 
 		return new CartItemAddResponse(cartItemId);
 	}
