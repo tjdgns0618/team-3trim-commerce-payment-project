@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductDetailGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductFilter;
 import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductListGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
@@ -26,11 +27,20 @@ public class ProductService {
 		);
 	}
 
+	// 다건 조회
 	@Transactional(readOnly = true)
 	public ProductListGetResponse getAll(Pageable pageable, ProductFilter filter) {
 		Page<Product> productPage = productRepository.findAllByFilter(filter, pageable);
 
 		return ProductListGetResponse.from(productPage);
+	}
+
+	// 단건 조회
+	@Transactional(readOnly = true)
+	public ProductDetailGetResponse getProduct(Long productId) {
+		Product product = findProductEntity(productId);
+
+		return ProductDetailGetResponse.from(product);
 	}
 
 }
