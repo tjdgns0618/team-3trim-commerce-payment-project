@@ -3,6 +3,7 @@ package com.example.team3trimcommercepaymentproject.domain.order.entity;
 import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
+import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,19 +13,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 
 @Entity
 @Table(
-        name = {
+        name = "orders",
+        indexes = {
                 @Index(name = "idx_orders_member_created_at", columnList = "member_id, created_at"),
                 @Index(name = "idx_orders_order_number", columnList = "order_number")
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,6 +60,12 @@ public class Order {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Payment payment;
 
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -90,8 +97,10 @@ public class Order {
         this.status = OrderStatus.COMPLETED;
     }
 
-    public void cancel() {
+    public void cancel(String cancelReason) {
         this.status = OrderStatus.CANCELED;
+        this.cancelReason = cancelReason;
+        this.canceledAt = LocalDateTime.now();
     }
 
 
