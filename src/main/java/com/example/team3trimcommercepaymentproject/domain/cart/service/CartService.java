@@ -28,9 +28,16 @@ public class CartService {
 	private final CartItemRepository cartItemRepository;
 	private final CartRepository cartRepository;
 
+	// 장바구니가 존재한다면 조회하고 없다면 생성
 	public Cart getOrCreateCart(Member member) {
 		return cartRepository.findByMemberId(member.getId())
 			.orElseGet(() -> cartRepository.save(new Cart(member)));
+	}
+
+	private CartItem getCartItemEntity(Long memberId, Long cartItemId) {
+		return cartItemRepository.findByMemberIdAndId(memberId, cartItemId).orElseThrow(
+			() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND)
+		);
 	}
 
 	// 1. 사용자가 상품 담기를 누름
@@ -51,6 +58,7 @@ public class CartService {
 		}
 	}
 
+	// 장바구니에 있는 모든 상품 조회
 	@Transactional(readOnly = true)
 	public CartGetResponse getAllCartItem(Long memberId) {
 		Cart cart = cartRepository.findByMemberId(memberId)
@@ -67,15 +75,21 @@ public class CartService {
 		return new CartGetResponse(items, totalAmount);
 	}
 
+	// 상품 수량 수정
 	@Transactional
 	public CartItemResponse updateQuantity(Long memberId, Long cartItemId, CartUpdateRequest request) {
-		CartItem item = cartItemRepository.findByMemberIdAndId(memberId, cartItemId).orElseThrow(
-			() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND)
-		);
+		CartItem item = getCartItemEntity(memberId, cartItemId);
 
 		item.updateQuantity(request.quantity());
 
 		return CartItemResponse.from(item);
+	}
+
+	@Transactional
+	public void deleteOneItem(Long memberId, Long cartItemId) {
+		CartItem item = getCartItemEntity(memberId, cartItemId);
+
+		cartItemRepository.delete(item);
 	}
 
 }
