@@ -38,12 +38,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OrderService {
 
-    private final OrderItemRepository orderItemRepository;
+
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
-    private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
-    private final MemberRepository memberRepository;
+
 
     /**
      * 주문서 미리보기
