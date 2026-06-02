@@ -44,8 +44,7 @@ public class PaymentService {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId);
 
         if (cartItems.isEmpty()) {
             throw new BusinessException(ErrorCode.CART_EMPTY);
