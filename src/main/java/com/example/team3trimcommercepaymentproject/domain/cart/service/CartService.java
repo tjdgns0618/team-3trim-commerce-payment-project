@@ -87,6 +87,7 @@ public class CartService {
 		return CartItemResponse.from(item);
 	}
 
+	// 상품 개별 삭제
 	@Transactional
 	public void deleteOneItem(Long memberId, Long cartItemId) {
 		CartItem item = getCartItemEntity(memberId, cartItemId);
@@ -94,4 +95,12 @@ public class CartService {
 		cartItemRepository.delete(item);
 	}
 
+	// 장바구니 비우기
+	@Transactional
+	public void clearCart(Long memberId) {
+		Cart cart = cartRepository.findByMemberId(memberId).orElseThrow(
+			() -> new BusinessException(ErrorCode.CART_EMPTY)
+		);
+		cartItemRepository.deleteAllByCartId(cart.getId());
+	}
 }
