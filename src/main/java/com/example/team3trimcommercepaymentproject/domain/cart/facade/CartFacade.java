@@ -25,6 +25,7 @@ public class CartFacade {
 	private final ProductService productService;
 	private final MemberService memberService;
 
+	// 다른 서비스를 이용하는 Cart의 로직을 구현하기 위해서 Facade에서 구현
 	@Transactional
 	public CartItemAddResponse addItem(Long memberId, CartItemAddRequest request) {
 		Product product = productService.findProductEntity(request.productId());

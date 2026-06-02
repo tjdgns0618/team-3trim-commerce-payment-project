@@ -76,4 +76,11 @@ public class CartController {
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok());
 	}
 
+	// 장바구니 비우기
+	@DeleteMapping
+	public ResponseEntity<ApiResponse<Void>> clearCart(@AuthenticationPrincipal Long memberId) {
+		cartService.clearCart(memberId);
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.ok());
+	}
+
 }
