@@ -272,7 +272,7 @@ public class OrderService {
             Product product = orderItem.getProduct();
             product.increaseStock(orderItem.getQuantity());
         }
-        order.cancel();
+        order.cancel(cancelRequest.cancelReason());
         payment.fail();
 
         LocalDateTime canceledAt = LocalDateTime.now();
