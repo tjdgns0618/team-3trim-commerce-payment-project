@@ -30,7 +30,7 @@ public class CartFacade {
 	public CartItemAddResponse addItem(Long memberId, CartItemAddRequest request) {
 		Product product = productService.findProductEntity(request.productId());
 		if (product.getSaleStatus() == Product.SaleStatus.SOLD_OUT) {
-			throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK);
+			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
 		}
 
 		Member member = memberService.findMemberEntity(memberId);

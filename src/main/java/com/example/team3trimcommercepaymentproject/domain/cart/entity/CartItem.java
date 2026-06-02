@@ -96,7 +96,7 @@ public class CartItem extends BaseEntity {
 
 	private void checkQuantity(Integer quantity) {
 		if (quantity > product.getStockQuantity()) {
-			throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK);
+			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
 		}
 	}
 }
