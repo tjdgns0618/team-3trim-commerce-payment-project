@@ -1,6 +1,8 @@
 package com.example.team3trimcommercepaymentproject.domain.member.entity;
 
 import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,5 +39,16 @@ public class Member extends BaseEntity {
 		this.encryptedPassword = encryptedPassword;
 		this.name = name;
 		this.phoneNumber = phoneNumber;
+	}
+
+	public void addPoint(Long amount) {
+		this.point += amount;
+	}
+
+	public void usePoint(Long amount) {
+		if (this.point < amount) {
+			throw new BusinessException(ErrorCode.POINT_NOT_ENOUGH);
+		}
+		this.point -= amount;
 	}
 }
