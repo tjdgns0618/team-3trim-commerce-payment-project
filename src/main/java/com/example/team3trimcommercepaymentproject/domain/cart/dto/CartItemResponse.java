@@ -2,7 +2,7 @@ package com.example.team3trimcommercepaymentproject.domain.cart.dto;
 
 import com.example.team3trimcommercepaymentproject.domain.cart.entity.CartItem;
 
-public record CartItemGetResponse(
+public record CartItemResponse(
 	Long id,
 	Long productId,
 	String productName,
@@ -10,8 +10,8 @@ public record CartItemGetResponse(
 	Integer quantity,
 	Integer subtotal
 ) {
-	public static CartItemGetResponse from(CartItem cartItem) {
-		return new CartItemGetResponse(
+	public static CartItemResponse from(CartItem cartItem) {
+		return new CartItemResponse(
 			cartItem.getId(),
 			cartItem.getProduct().getId(),
 			cartItem.getProduct().getName(),

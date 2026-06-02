@@ -20,7 +20,16 @@ public enum ErrorCode {
 
 	// Auth
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH_001", "인증이 필요합니다."),
-	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_002", "유효하지 않은 토큰입니다.");
+	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_002", "유효하지 않은 토큰입니다."),
+
+	//Product
+	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품을 찾을 수 없습니다."),
+	INSUFFICIENT_STOCK(HttpStatus.CONFLICT, "PRODUCT_002", "재고가 부족합니다."),
+
+	//Cart
+	CART_EMPTY(HttpStatus.BAD_REQUEST, "CART_001", "장바구니가 비어있습니다."),
+	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "CART_002", "장바구니에 존재하지 않는 상품입니다."),
+	INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "CART_003", "상품 수량은 1개 이상이어야 합니다.");
 
 	private final HttpStatus status;
 	private final String code;

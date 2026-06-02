@@ -11,6 +11,7 @@ import com.example.team3trimcommercepaymentproject.domain.auth.dto.LoginResponse
 import com.example.team3trimcommercepaymentproject.domain.auth.dto.SignupRequest;
 import com.example.team3trimcommercepaymentproject.domain.auth.dto.SignupResponse;
 import com.example.team3trimcommercepaymentproject.domain.auth.service.AuthService;
+import com.example.team3trimcommercepaymentproject.global.response.ApiResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,13 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(request));
+	public ResponseEntity<ApiResponse<SignupResponse>> signup(@Valid @RequestBody SignupRequest request) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(authService.signup(request)));
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-		return ResponseEntity.status(HttpStatus.OK).body(authService.login(request));
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+		return ResponseEntity.ok(ApiResponse.ok(authService.login(request)));
 	}
 
 }
