@@ -6,10 +6,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductDetailGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductFilter;
 import com.example.team3trimcommercepaymentproject.domain.product.dto.ProductListGetResponse;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
@@ -24,6 +26,7 @@ public class ProductController {
 
 	private final ProductService productService;
 
+	// 다건 조회: 조건 필터 + 페이지네이션으로 상품 목록을 조회
 	@GetMapping
 	public ResponseEntity<ProductListGetResponse> getAllProduct(
 		@RequestParam(required = false) String categoryName,
@@ -42,6 +45,14 @@ public class ProductController {
 		return ResponseEntity.ok(response);
 	}
 
+	// 단건 조회
+	@GetMapping("/{productId}")
+	public ResponseEntity<ProductDetailGetResponse> getProduct(
+		@PathVariable Long productId
+	) {
+		ProductDetailGetResponse response = productService.getProduct(productId);
 
+		return ResponseEntity.ok(response);
+	}
 
 }

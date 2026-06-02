@@ -75,9 +75,9 @@ public class Product extends BaseEntity {
             throw new BusinessException(ErrorCode.INVALID_INPUT);
         }
 
-        if (this.stockQuantity < quantity) {
-            throw new BusinessException(ErrorCode.INSUFFICIENT_STOCK);
-        }
+		if (this.stockQuantity < quantity) {
+			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
+		}
 
         this.stockQuantity -= quantity;
 
