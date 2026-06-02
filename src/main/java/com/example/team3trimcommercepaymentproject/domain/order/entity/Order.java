@@ -1,9 +1,7 @@
 package com.example.team3trimcommercepaymentproject.domain.order.entity;
 
-import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
-import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,15 +15,14 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "orders",
-        indexes = {
+        name = {
                 @Index(name = "idx_orders_member_created_at", columnList = "member_id, created_at"),
                 @Index(name = "idx_orders_order_number", columnList = "order_number")
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order extends BaseEntity {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,12 +57,6 @@ public class Order extends BaseEntity {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Payment payment;
 
-    @Column(name = "canceled_at")
-    private LocalDateTime canceledAt;
-
-    @Column(name = "cancel_reason")
-    private String cancelReason;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -97,12 +88,9 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.COMPLETED;
     }
 
-    public void cancel(String cancelReason) {
+    public void cancel() {
         this.status = OrderStatus.CANCELED;
-        this.cancelReason = cancelReason;
-        this.canceledAt = LocalDateTime.now();
     }
-
 
     @PrePersist
     protected void onCreate() {
