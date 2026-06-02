@@ -21,13 +21,28 @@ public enum ErrorCode {
 	// Auth
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH_001", "인증이 필요합니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_002", "유효하지 않은 토큰입니다."),
-
-	//Product
+	// Product
 	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품을 찾을 수 없습니다."),
-	INSUFFICIENT_STOCK(HttpStatus.CONFLICT, "PRODUCT_002", "재고가 부족합니다."),
+	PRODUCT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "PRODUCT_002", "판매 가능한 상품이 아닙니다."),
+	OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "PRODUCT_003", "상품 재고가 부족합니다."),
+
+	// Point
+	POINT_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "POINT_001", "포인트 잔액이 부족합니다."),
+	POINT_EXCEEDS_ORDER_AMOUNT(HttpStatus.BAD_REQUEST, "POINT_002", "사용 포인트는 주문 금액을 초과할 수 없습니다."),
+
+	// Order
+	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "주문을 찾을 수 없습니다."),
+	ORDER_NOT_CANCELABLE(HttpStatus.BAD_REQUEST, "ORDER_002", "취소할 수 없는 주문 상태입니다."),
+
+	// Payment
+	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_001", "결제 정보를 찾을 수 없습니다."),
+	PAYMENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "PAYMENT_002", "이미 처리된 결제입니다."),
+	PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT_003", "결제 금액이 일치하지 않습니다."),
 
 	//Cart
 	CART_EMPTY(HttpStatus.BAD_REQUEST, "CART_001", "장바구니가 비어있습니다.");
+
+
 
 	private final HttpStatus status;
 	private final String code;
