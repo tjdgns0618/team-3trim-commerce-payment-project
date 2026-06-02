@@ -29,6 +29,7 @@ public class CartService {
 	private final CartRepository cartRepository;
 
 	// 장바구니가 존재한다면 조회하고 없다면 생성
+	@Transactional
 	public Cart getOrCreateCart(Member member) {
 		return cartRepository.findByMemberId(member.getId())
 			.orElseGet(() -> cartRepository.save(new Cart(member)));
@@ -61,10 +62,11 @@ public class CartService {
 	// 장바구니에 있는 모든 상품 조회
 	@Transactional(readOnly = true)
 	public CartGetResponse getAllCartItem(Long memberId) {
-		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
+		List<CartItem> foundItems = cartItemRepository.findAllByMemberId(memberId).orElseThrow(
+			() -> new BusinessException(ErrorCode.CART_EMPTY)
+		);
 
-		List<CartItemResponse> items = cart.getCartItems().stream()
+		List<CartItemResponse> items = foundItems.stream()
 			.map(CartItemResponse::from)
 			.toList();
 
