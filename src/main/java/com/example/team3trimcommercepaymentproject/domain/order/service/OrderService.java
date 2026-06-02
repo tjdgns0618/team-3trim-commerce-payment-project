@@ -113,7 +113,7 @@ public class OrderService {
      * 주문 생성
      **/
     @Transactional
-    public OrderCreateResponse create(Long memberId, OrderCreateRequest request) {
+    public OrderCreateResponse createOrderWithPayment(Long memberId, OrderCreateRequest request) {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 

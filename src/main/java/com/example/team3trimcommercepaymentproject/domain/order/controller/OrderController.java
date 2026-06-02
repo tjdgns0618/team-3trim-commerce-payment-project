@@ -5,6 +5,7 @@ import com.example.team3trimcommercepaymentproject.domain.order.dto.request.Orde
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderPreviewRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.response.*;
 import com.example.team3trimcommercepaymentproject.domain.order.service.OrderService;
+import com.example.team3trimcommercepaymentproject.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/orders")
 public class OrderController {
 
+    private final JwtProvider jwtProvider;
     private final OrderService orderService;
 
     /**
@@ -42,7 +44,7 @@ public class OrderController {
             @AuthenticationPrincipal Long memberId,
             @RequestBody OrderCreateRequest request
     ) {
-        OrderCreateResponse response = orderService.create(memberId, request);
+        OrderCreateResponse response = orderService.createOrderWithPayment(memberId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
