@@ -11,6 +11,7 @@ public record ProductListGetResponse(
 	List<ProductPageGetResponse> products,
 	PageInfo pageInfo
 ) {
+	// 다건 조회
 	public static ProductListGetResponse from(Page<Product> pageProduct) {
 		List<ProductPageGetResponse> products =pageProduct.stream()
 			.map(ProductPageGetResponse::from).toList();
