@@ -41,6 +41,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
 
 
     /**
@@ -51,7 +52,8 @@ public class OrderService {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-        List<CartItem> cartItems = cart.getCartItems();
+        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (cartItems.isEmpty()) {
             throw new BusinessException(ErrorCode.CART_EMPTY);
@@ -111,11 +113,14 @@ public class OrderService {
      * 주문 생성
      **/
     @Transactional
-    public OrderCreateResponse create(Long memberId, OrderCreateRequest request) {
+    public OrderCreateResponse createOrderWithPayment(Long memberId, OrderCreateRequest request) {
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
-        List<CartItem> targetCartItems = selectCartItems(cart.getCartItems(), request.cartItemIds());
+        List<CartItem> cartItems = cartItemRepository.findAllByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
+
+        List<CartItem> targetCartItems = selectCartItems(cartItems, request.cartItemIds());
 
         validateCartItems(targetCartItems, request.cartItemIds());
 
@@ -280,8 +285,8 @@ public class OrderService {
                 order.getOrderNumber(),
                 order.getStatus(),
                 payment.getStatus(),
-                cancelRequest.cancelReason(),
-                canceledAt
+                order.getCancelReason(),
+                order.getCanceledAt()
         );
 
     }

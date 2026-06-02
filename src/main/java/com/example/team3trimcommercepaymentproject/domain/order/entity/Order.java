@@ -59,6 +59,12 @@ public class Order {
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Payment payment;
 
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -90,8 +96,10 @@ public class Order {
         this.status = OrderStatus.COMPLETED;
     }
 
-    public void cancel() {
+    public void cancel(String cancelReason) {
         this.status = OrderStatus.CANCELED;
+        this.cancelReason = cancelReason;
+        this.canceledAt = LocalDateTime.now();
     }
 
     @PrePersist
