@@ -3,24 +3,15 @@ package com.example.team3trimcommercepaymentproject.domain.order.controller;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderCancelRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderCreateRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderPreviewRequest;
-import com.example.team3trimcommercepaymentproject.domain.order.dto.response.OrderCancelResponse;
-import com.example.team3trimcommercepaymentproject.domain.order.dto.response.OrderCreateResponse;
-import com.example.team3trimcommercepaymentproject.domain.order.dto.response.OrderDetailResponse;
-import com.example.team3trimcommercepaymentproject.domain.order.dto.response.OrderPageResponse;
-import com.example.team3trimcommercepaymentproject.domain.order.dto.response.OrderPreviewResponse;
+import com.example.team3trimcommercepaymentproject.domain.order.dto.response.*;
 import com.example.team3trimcommercepaymentproject.domain.order.service.OrderService;
-import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
-import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,10 +26,9 @@ public class OrderController {
      */
     @PostMapping("/preview")
     public ResponseEntity<OrderPreviewResponse> preview(
+            @AuthenticationPrincipal Long memberId,
             @RequestBody OrderPreviewRequest request
     ) {
-        Long memberId = getLoginMemberId();
-
         OrderPreviewResponse response = orderService.preview(memberId, request);
 
         return ResponseEntity.ok(response);
@@ -49,10 +39,9 @@ public class OrderController {
      */
     @PostMapping
     public ResponseEntity<OrderCreateResponse> create(
+            @AuthenticationPrincipal Long memberId,
             @RequestBody OrderCreateRequest request
     ) {
-        Long memberId = getLoginMemberId();
-
         OrderCreateResponse response = orderService.create(memberId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -63,11 +52,10 @@ public class OrderController {
      */
     @GetMapping
     public ResponseEntity<OrderPageResponse> findOrders(
+            @AuthenticationPrincipal Long memberId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
-        Long memberId = getLoginMemberId();
-
         OrderPageResponse response = orderService.findOrders(memberId, pageable);
 
         return ResponseEntity.ok(response);
@@ -78,10 +66,9 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> findOrderDetail(
+            @AuthenticationPrincipal Long memberId,
             @PathVariable Long orderId
     ) {
-        Long memberId = getLoginMemberId();
-
         OrderDetailResponse response = orderService.findByIdOrder(memberId, orderId);
 
         return ResponseEntity.ok(response);
@@ -92,29 +79,12 @@ public class OrderController {
      */
     @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<OrderCancelResponse> cancel(
+            @AuthenticationPrincipal Long memberId,
             @PathVariable Long orderId,
             @RequestBody OrderCancelRequest request
     ) {
-        Long memberId = getLoginMemberId();
-
         OrderCancelResponse response = orderService.cancel(memberId, orderId, request);
 
         return ResponseEntity.ok(response);
-    }
-
-    private Long getLoginMemberId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (!(principal instanceof Long memberId)) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-
-        return memberId;
     }
 }

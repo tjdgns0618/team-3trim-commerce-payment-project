@@ -1,5 +1,6 @@
 package com.example.team3trimcommercepaymentproject.domain.order.entity;
 
+import com.example.team3trimcommercepaymentproject.domain.member.entity.Member;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import jakarta.persistence.*;
@@ -15,7 +16,8 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = {
+        name = "orders",
+        indexes = {
                 @Index(name = "idx_orders_member_created_at", columnList = "member_id, created_at"),
                 @Index(name = "idx_orders_order_number", columnList = "order_number")
         }
