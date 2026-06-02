@@ -2,6 +2,8 @@ package com.example.team3trimcommercepaymentproject.domain.product.entity;
 
 import com.example.team3trimcommercepaymentproject.global.entity.BaseEntity;
 
+import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
+import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,6 +68,18 @@ public class Product extends BaseEntity {
 		this.stockQuantity = stockQuantity;
 		this.description = description;
 		this.saleStatus = saleStatus;
+	}
+
+	public void decreaseStock(int quantity) {
+		if (quantity <= 0) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
+		}
+	}
+
+	public void increaseStock(int quantity) {
+		if (quantity <= 0) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
+		}
 	}
 
 	public enum SaleStatus {
