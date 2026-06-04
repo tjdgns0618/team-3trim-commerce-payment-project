@@ -17,7 +17,6 @@ import com.example.team3trimcommercepaymentproject.global.filter.JwtFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -47,8 +46,8 @@ public class SecurityConfig {
 				.requestMatchers(toStaticResources().atCommonLocations()).permitAll()
 				.requestMatchers("/favicon.*").permitAll()
 				.requestMatchers("/", "/login", "/signup").permitAll()
-				.requestMatchers("/order/**", "/product/**", "/cart/**", "/payment/**").permitAll()
-				.requestMatchers("/error").permitAll()
+				.requestMatchers("/order/**", "/product/**", "/cart/**", "/payments/**").permitAll()
+				.requestMatchers("/error", "/webhooks/**", "/member/**", "/point-transaction").permitAll()
 				.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
