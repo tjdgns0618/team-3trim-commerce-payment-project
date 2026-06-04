@@ -48,7 +48,16 @@ public class Refund extends BaseEntity {
 		this.reason = reason;
 		this.pointRefundPrice = pointRefundPrice;
 		this.pgRefundPrice = pgRefundPrice;
-		this.status = status;
+		this.status = status == null ? RefundStatus.REQUESTED : status;
+	}
+
+	// 상태 변경
+	public void complete() {
+		this.status = RefundStatus.COMPLETED;
+	}
+
+	public void fail() {
+		this.status = RefundStatus.FAILED;
 	}
 
 	public enum RefundStatus {
