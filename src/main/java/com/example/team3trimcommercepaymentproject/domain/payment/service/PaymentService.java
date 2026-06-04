@@ -15,6 +15,9 @@ import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.P
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOneClient;
 import com.example.team3trimcommercepaymentproject.domain.payment.repository.PaymentRepository;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.entity.PointTransaction;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.entity.TransactionType;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.repository.PointTransactionRepository;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
@@ -38,6 +41,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final PortOneClient portOneClient;
+	private final PointTransactionRepository pointTransactionRepository;
 
     @Value("${portone.webhook.secret-key}")
     private String webhookSecretKey;
@@ -181,6 +185,26 @@ public class PaymentService {
         order.complete();
         payment.complete();
 
+		if (payment.getUsedPoint() != null && payment.getUsedPoint() != 0)	{
+			PointTransaction pointTransaction = new PointTransaction(
+				TransactionType.USE,
+				payment.getUsedPoint(),
+				order.getMember(),
+				payment
+			);
+			pointTransactionRepository.save(pointTransaction);
+		}
+
+		PointTransaction pointTransaction = new PointTransaction(
+			TransactionType.EARN,
+			payment.getEarnedPoint(),
+			order.getMember(),
+			payment
+		);
+
+		pointTransactionRepository.save(pointTransaction);
+
+
         Cart cart = cartRepository.findByMemberId(menderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
 
@@ -188,6 +212,7 @@ public class PaymentService {
 
         orderRepository.save(order);
         paymentRepository.save(payment);
+
 
         return finalizePayment(order, payment);
     }
