@@ -5,7 +5,4 @@ public record PortOnePaymentResponse(
         String status,
         Long amount
 ) {
-    public boolean isPaid() {
-        return "PAID".equals(status);
-    }
 }

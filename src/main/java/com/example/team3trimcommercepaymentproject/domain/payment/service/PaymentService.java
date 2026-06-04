@@ -13,14 +13,12 @@ import com.example.team3trimcommercepaymentproject.domain.payment.dto.request.Pa
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentConfirmResponse;
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentCreateResponse;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
-import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOneClient;
+import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOnePaymentInfo;
 import com.example.team3trimcommercepaymentproject.domain.payment.repository.PaymentRepository;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
-import com.example.team3trimcommercepaymentproject.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,19 +30,16 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PaymentService {
 
-    private final JwtProvider jwtProvider;
+
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
-    private final PortOneClient portOneClient;
 
-    @Value("${portone.webhook.secret-key}")
-    private String webhookSecretKey;
 
     /**
      * 주문/결제 동시 생성
-     **/
+
     @Transactional
     public OrderCreateResponse createPayment(Long memberId, OrderCreateRequest request) {
         Cart cart = cartRepository.findByMemberId(memberId)
@@ -154,18 +149,19 @@ public class PaymentService {
                 )
         );
     }
+     **/
 
     /**
      * 결제 확정
      **/
     @Transactional
-    public PaymentConfirmResponse confirmfi(Long menderId, PaymentConfirmRequest confirmRequest) {
+    public PaymentConfirmResponse confirm(Long memberId, PaymentConfirmRequest confirmRequest) {
 
         Long orderId = confirmRequest.orderId();
+
         String portonePaymentId = confirmRequest.portonePaymentId();
 
-
-        Order order = orderRepository.findOrderDetailByIdAndMemberId(orderId, menderId)
+        Order order = orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         Payment payment = order.getPayment();
@@ -178,18 +174,40 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_NOT_FOUND);
         }
 
-        order.complete();
-        payment.complete();
-
-        Cart cart = cartRepository.findByMemberId(menderId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-
-        cartItemRepository.deleteAllByCartId(cart.getId());
+        PaymentConfirmResponse response = finalizePayment(order, payment);
 
         orderRepository.save(order);
         paymentRepository.save(payment);
 
-        return finalizePayment(order, payment);
+        return response;
+    }
+
+
+    /**
+     * 웹훅수신
+     **/
+
+    @Transactional
+    public void processPortOnePaymentResult(String portonePaymentId, PortOnePaymentInfo paymentInfo) {
+
+        Payment payment = paymentRepository.findByPortonePaymentId(portonePaymentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        Order order = payment.getOrder();
+
+        if (payment.isPaid()) {
+            return;
+        }
+        if (paymentInfo.isPaid()) {
+            validateAmount(payment, paymentInfo);
+            finalizePayment(order, payment);
+            return;
+        }
+        if (paymentInfo.isFailed()) {
+            cancelOrderBecausePaymentFailed(order, payment);
+            return;
+        }
+        throw new BusinessException(ErrorCode.PAYMENT_NOT_FOUND);
     }
 
 
@@ -204,6 +222,23 @@ public class PaymentService {
         return toConfirmResponse(order, payment);
     }
 
+    private void cancelOrderBecausePaymentFailed(Order order, Payment payment) {
+        for (OrderItem orderItem : order.getOrderItems()) {
+
+            Product product = orderItem.getProduct();
+
+            product.increaseStock(orderItem.getQuantity());
+        }
+
+        order.cancel("결제 실패");
+        payment.fail();
+    }
+
+    private void validateAmount(Payment payment, PortOnePaymentInfo paymentInfo) {
+        if (!payment.getPgAmount().equals(paymentInfo.paidAmount())) {
+            throw new BusinessException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
+        }
+    }
 
     // 나중에 삭제 될 예정
     private String generatePortonePaymentId(String orderNumber) {
@@ -216,7 +251,7 @@ public class PaymentService {
     }
 
     private String generateOrderNumber() {
-        String date = java.time.LocalDateTime.now()
+        String date = java.time.LocalDate.now()
                 .format(DateTimeFormatter.BASIC_ISO_DATE);
 
         String random = java.util.UUID.randomUUID()
@@ -237,6 +272,8 @@ public class PaymentService {
                 payment.getEarnedPoint()
         );
     }
+
+
 }
 
 
