@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -36,10 +37,19 @@ public class PointTransaction extends BaseEntity {
 	private Long amount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "payment_id", nullable = false)
 	private Payment payment;
+
+	public PointTransaction(TransactionType transactionType, Long amount, Member member, Payment payment) {
+		this.transactionType = transactionType;
+		this.amount = amount;
+		this.member = member;
+		this.payment = payment;
+	}
 
 	public static PointTransaction earn(Member member, Payment payment, Long amount) {
 		PointTransaction pointTransaction = new PointTransaction();
