@@ -18,6 +18,7 @@ import com.example.team3trimcommercepaymentproject.domain.payment.repository.Pay
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.entity.PointTransaction;
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.entity.TransactionType;
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.repository.PointTransactionRepository;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
@@ -41,7 +42,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final PortOneClient portOneClient;
-	private final PointTransactionRepository pointTransactionRepository;
+	private final PointTransactionService  pointTransactionService;
 
     @Value("${portone.webhook.secret-key}")
     private String webhookSecretKey;
@@ -185,24 +186,13 @@ public class PaymentService {
         order.complete();
         payment.complete();
 
-		if (payment.getUsedPoint() != null && payment.getUsedPoint() != 0)	{
-			PointTransaction pointTransaction = new PointTransaction(
-				TransactionType.USE,
-				payment.getUsedPoint(),
-				order.getMember(),
-				payment
-			);
-			pointTransactionRepository.save(pointTransaction);
+		if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L)	{
+			pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
 		}
 
-		PointTransaction pointTransaction = new PointTransaction(
-			TransactionType.EARN,
-			payment.getEarnedPoint(),
-			order.getMember(),
-			payment
+		pointTransactionService.earnPoint(
+			order.getMember().getId(), payment, payment.getEarnedPoint()
 		);
-
-		pointTransactionRepository.save(pointTransaction);
 
 
         Cart cart = cartRepository.findByMemberId(menderId)
