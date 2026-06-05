@@ -19,8 +19,6 @@ import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.PaymentStatus;
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
-import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundItemRepository;
-import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundRepository;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +41,6 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final PointTransactionService pointTransactionService;
-    private final RefundRepository refundRepository;
-    private final RefundItemRepository refundItemRepository;
 
     @Transactional(readOnly = true)
     public Order getOrderEntity(Long orderId, Long memberId) {
@@ -83,7 +79,7 @@ public class OrderService {
         }
 
         List<OrderPreviewItemResponse> previewItems = new ArrayList<>();
-        Long totalAmount = 0L;
+        long totalAmount = 0L;
 
         for (CartItem cartItem : targetCartItems) {
             Product product = cartItem.getProduct();
@@ -96,9 +92,9 @@ public class OrderService {
                 throw new BusinessException(ErrorCode.OUT_OF_STOCK);
             }
 
-            Long price = product.getPrice().longValue();
+            long price = product.getPrice().longValue();
             Integer quantity = cartItem.getQuantity();
-            Long subtotalAmount = price * quantity;
+            long subtotalAmount = price * quantity;
 
             OrderPreviewItemResponse previewItem = new OrderPreviewItemResponse(
                     cartItem.getId(),
@@ -131,7 +127,7 @@ public class OrderService {
 
         validateCartItems(targetCartItems, request.cartItemIds());
 
-        Long totalAmount = 0L;
+        long totalAmount = 0L;
 
         for (CartItem cartItem : targetCartItems) {
             Product product = cartItem.getProduct();
@@ -141,9 +137,9 @@ public class OrderService {
             totalAmount += product.getPrice().longValue() * cartItem.getQuantity();
         }
 
-        Long usedPoint = request.usedPoint() == null ? 0L : request.usedPoint();
-        Long pgAmount = totalAmount - usedPoint;
-        Long earnedPoint = pgAmount / 100;
+        long usedPoint = request.usedPoint() == null ? 0L : request.usedPoint();
+        long pgAmount = totalAmount - usedPoint;
+        long earnedPoint = pgAmount / 100;
 
         String orderNumber = generateOrderNumber();
         String portonePaymentId = generatePortonePaymentId(orderNumber);
