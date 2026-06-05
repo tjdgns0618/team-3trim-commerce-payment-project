@@ -9,14 +9,18 @@ import com.example.team3trimcommercepaymentproject.domain.order.dto.request.Orde
 import com.example.team3trimcommercepaymentproject.domain.order.dto.request.OrderPreviewRequest;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.response.*;
 import com.example.team3trimcommercepaymentproject.domain.order.entity.Order;
-import com.example.team3trimcommercepaymentproject.domain.order.entity.OrderStatus;
+import com.example.team3trimcommercepaymentproject.domain.order.dto.OrderCancelDTO;
 import com.example.team3trimcommercepaymentproject.domain.order.repository.OrderRepository;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderItemResponse;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderPreviewItemResponse;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.OrderItem;
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentCreateResponse;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
+import com.example.team3trimcommercepaymentproject.domain.payment.entity.PaymentStatus;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
+import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundItemRepository;
+import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundRepository;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +42,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final PointTransactionService pointTransactionService;
+    private final RefundRepository refundRepository;
+    private final RefundItemRepository refundItemRepository;
 
+    @Transactional(readOnly = true)
+    public Order getOrderEntity(Long orderId, Long memberId) {
+        return orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+    }
 
     /**
      * 주문서 미리보기
@@ -253,30 +264,35 @@ public class OrderService {
     }
 
     /**
-     * 추문취소
+     * 주문취소
      **/
     @Transactional
-    public OrderCancelResponse cancel(Long memberId, Long orderId, OrderCancelRequest cancelRequest) {
-
-        Order order = orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-
-        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_CANCELABLE);
-        }
-
+    public OrderCancelDTO cancel(Long memberId, Long orderId, OrderCancelRequest cancelRequest) {
+        Order order = getOrderEntity(memberId, orderId);
         Payment payment = order.getPayment();
 
-        for (OrderItem orderItem : order.getOrderItems()) {
-            Product product = orderItem.getProduct();
-            product.increaseStock(orderItem.getQuantity());
+        // 결제 상태가 PG사에 요청을 보내야 하는 상태인지 검사
+        boolean needsPgCancel = false;
+        if (payment.getStatus() == PaymentStatus.PAID || payment.getStatus() == PaymentStatus.PARTIAL_REFUNDED) {
+            needsPgCancel = true;
         }
+
+        for (OrderItem orderItem : order.getOrderItems()) {
+            orderItem.getProduct().increaseStock(orderItem.getQuantity());
+        }
+
         order.cancel(cancelRequest.cancelReason());
-        payment.fail();
+        payment.cancel();
 
-        LocalDateTime canceledAt = LocalDateTime.now();
+        // 결제 완료 상태였던 경우만 포인트 정산 (0원이면 트랜잭션 생성 안 함)
+        if (needsPgCancel) {
+            if (payment.getEarnedPoint() > 0)
+                pointTransactionService.cancelEarnPoint(memberId, payment, payment.getEarnedPoint());
+            if (payment.getUsedPoint() > 0)
+                pointTransactionService.restoreUsedPoint(memberId, payment, payment.getUsedPoint());
+        }
 
-        return new OrderCancelResponse(
+        OrderCancelResponse response = new OrderCancelResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getStatus(),
@@ -285,6 +301,7 @@ public class OrderService {
                 order.getCanceledAt()
         );
 
+        return new OrderCancelDTO(response, payment.getPortonePaymentId(), cancelRequest.cancelReason(), needsPgCancel, payment.getId());
     }
 
     private List<CartItem> selectCartItems(List<CartItem> cartItems, List<Long> cartItemIds) {
