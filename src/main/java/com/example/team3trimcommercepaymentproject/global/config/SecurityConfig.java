@@ -52,7 +52,7 @@ public class SecurityConfig {
 								"/favicon.*"
 						).permitAll()
 						.requestMatchers("/login", "/signup").permitAll()
-						.requestMatchers("/order/**", "/product/**", "/cart/**", "/payment/**").permitAll()
+						.requestMatchers("/orders/**", "/products/**", "/carts/**", "/payments/**").permitAll()
 						.requestMatchers("/error").permitAll()
 						.anyRequest().authenticated()
 				)
