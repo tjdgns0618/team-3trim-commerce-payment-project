@@ -44,8 +44,9 @@ public class OrderService {
     /**
      * 주문서 미리보기
      **/
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderPreviewResponse preview(Long memberId, OrderPreviewRequest request) {
+
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
@@ -110,6 +111,11 @@ public class OrderService {
      **/
     @Transactional
     public OrderCreateResponse createOrderWithPayment(Long memberId, OrderCreateRequest request) {
+
+        if (orderRepository.existsByMemberIdAndStatus(memberId, OrderStatus.PAYMENT_PENDING)) {
+            throw new BusinessException(ErrorCode.ORDER_NOT_CANCELABLE);
+        }
+
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
 
@@ -174,6 +180,8 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         Payment savedPayment = savedOrder.getPayment();
+
+
 
         return new OrderCreateResponse(
                 savedOrder.getId(),
@@ -332,6 +340,7 @@ public class OrderService {
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
     }
+
     private void validateProduct(Product product, Integer quantity) {
         if (product == null) {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
