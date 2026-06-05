@@ -1,16 +1,19 @@
 package com.example.team3trimcommercepaymentproject.domain.payment.portOne;
 
-import java.util.Map;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+
+import com.example.team3trimcommercepaymentproject.domain.payment.dto.request.PortOneCancelRequest;
 
 @Component
 @RequiredArgsConstructor
@@ -35,9 +38,10 @@ public class PortOneClient {
     }
 
     // portOne으로 결제 취소 post요청
+    @Transactional
     public void cancelPayment(String paymentId, String reason) {
         String idempotencyKey = UUID.randomUUID().toString();
-        Map<String, String> body = Map.of("storeId", storeId, "reason", reason);
+        log.info("PortOne 결제 취소 요청: paymentId={}, reason={}, idempotencyKey={}", paymentId, reason, idempotencyKey);
 
         int maxRetries = 3;
 
@@ -45,19 +49,24 @@ public class PortOneClient {
             try {
                 portOneWebClient.post()
                     .uri("/payments/{paymentId}/cancel", paymentId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Idempotency-Key", idempotencyKey)
-                    .bodyValue(body)
+                    .header("Idempotency-Key", idempotencyKey) // 같은 키 유지
+                    .bodyValue(new PortOneCancelRequest(reason, storeId))
                     .retrieve()
+                    .onStatus(HttpStatusCode::isError, response ->
+                        response.bodyToMono(String.class)
+                            .flatMap(body -> {
+                                log.error("PortOne 취소 실패 응답: {}", body);
+                                return Mono.error(new RuntimeException("PortOne 취소 실패: " + body));
+                            }))
                     .toBodilessEntity()
-                    .block();
-                return;
+                    .block(); // 동기식으로 결과를 기다림
+                return;  // 성공하면 종료
             } catch (WebClientRequestException e) {
-                // 네트워크 오류 재시도
-                log.warn("PortOne 취소 요청 타임아웃 (시도 {}/{})", attempt, maxRetries);
-                if (attempt == maxRetries) throw e;
+                // 네트워크 타임아웃 및 연결 오류 -> 재시도
+                log.warn("PortOne 취소 요청 타임아웃/연결오류 (시도 {}/{})", attempt, maxRetries);
+                if (attempt == maxRetries)
+                    throw e;
             }
         }
     }
-
 }
