@@ -34,7 +34,7 @@ Authorization: Bearer {{token}}
 
 {
   "productId": 1,
-  "quantity": 2
+  "quantity": 1
 }
 
 ###
@@ -60,7 +60,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
-  "quantity": 5
+  "quantity": 1
 }
 
 ###
