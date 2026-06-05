@@ -35,7 +35,7 @@ public class Product extends BaseEntity {
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
-	@Column(nullable = false, length = 255)
+	@Column(nullable = false)
 	private String name;
 
 	@Column(nullable = false)
@@ -74,12 +74,17 @@ public class Product extends BaseEntity {
 		if (quantity <= 0) {
 			throw new BusinessException(ErrorCode.INVALID_INPUT);
 		}
+		if (this.stockQuantity < quantity) {
+			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
+		}
+		this.stockQuantity -= quantity;
 	}
 
 	public void increaseStock(int quantity) {
 		if (quantity <= 0) {
 			throw new BusinessException(ErrorCode.INVALID_INPUT);
 		}
+		this.stockQuantity += quantity;
 	}
 
 	public enum SaleStatus {

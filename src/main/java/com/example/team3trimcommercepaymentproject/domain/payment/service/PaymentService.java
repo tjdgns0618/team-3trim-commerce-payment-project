@@ -8,6 +8,7 @@ import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.P
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
 import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOnePaymentInfo;
 import com.example.team3trimcommercepaymentproject.domain.payment.repository.PaymentRepository;
+import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
@@ -25,7 +26,7 @@ public class PaymentService {
 
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
-
+	private final PointTransactionService  pointTransactionService;
 
 
 
@@ -53,6 +54,13 @@ public class PaymentService {
         }
 
         PaymentConfirmResponse response = finalizePayment(order, payment);
+
+		if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L)	{
+			pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
+		}
+		pointTransactionService.earnPoint(
+			order.getMember().getId(), payment, payment.getEarnedPoint()
+		);
 
         orderRepository.save(order);
         paymentRepository.save(payment);

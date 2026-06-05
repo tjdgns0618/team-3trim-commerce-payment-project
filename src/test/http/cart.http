@@ -34,7 +34,7 @@ Authorization: Bearer {{token}}
 
 {
   "productId": 1,
-  "quantity": 2
+  "quantity": 1
 }
 
 ###
@@ -60,7 +60,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
-  "quantity": 5
+  "quantity": 1
 }
 
 ###
@@ -71,4 +71,10 @@ Authorization: Bearer {{token}}
 ###
 # 8. 장바구니 비우기 (전체 삭제)
 DELETE {{baseUrl}}/cart/items
+Authorization: Bearer {{token}}
+
+###
+# 9. 상품 전체 조회
+GET {{baseUrl}}/products
+Content-Type: {{contentType}}
 Authorization: Bearer {{token}}

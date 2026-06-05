@@ -69,5 +69,21 @@ public class PointTransaction extends BaseEntity {
 		return pointTransaction;
 	}
 
+	public static PointTransaction earnCancel(Member member, Payment payment, Long amount) {
+		PointTransaction pointTransaction = new PointTransaction();
+		pointTransaction.member = member;
+		pointTransaction.payment = payment;
+		pointTransaction.transactionType = TransactionType.EARN_CANCEL;
+		pointTransaction.amount = amount;
+		return pointTransaction;
+	}
 
+	public static PointTransaction useRestore(Member member, Payment payment, Long amount) {
+		PointTransaction pointTransaction = new PointTransaction();
+		pointTransaction.member = member;
+		pointTransaction.payment = payment;
+		pointTransaction.transactionType = TransactionType.USE_RESTORE;
+		pointTransaction.amount = amount;
+		return pointTransaction;
+	}
 }

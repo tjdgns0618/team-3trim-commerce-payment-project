@@ -32,6 +32,16 @@ public class PointTransactionService {
 		pointTransactionRepository.save(PointTransaction.use(member, payment, amount));
 	}
 
+	public void cancelEarnPoint(Long memberId, Payment payment, Long amount) {
+		Member member = memberService.usePoint(memberId, amount);
+		pointTransactionRepository.save(PointTransaction.earnCancel(member, payment, amount));
+	}
+
+	public void restoreUsedPoint(Long memberId, Payment payment, Long amount) {
+		Member member = memberService.addPoint(memberId, amount);
+		pointTransactionRepository.save(PointTransaction.useRestore(member, payment, amount));
+	}
+
 	public List<GetPointTransactionResponse> getPointTransaction(Long memberId) {
 		return pointTransactionRepository.findAllByMemberIdOrderByModifiedAtDesc(memberId)
 			.stream()
