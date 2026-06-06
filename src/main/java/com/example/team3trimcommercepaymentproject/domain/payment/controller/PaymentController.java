@@ -2,8 +2,8 @@ package com.example.team3trimcommercepaymentproject.domain.payment.controller;
 
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.request.PaymentConfirmRequest;
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentConfirmResponse;
+import com.example.team3trimcommercepaymentproject.domain.payment.facade.PaymentFacade;
 import com.example.team3trimcommercepaymentproject.domain.payment.handler.PortOneWebhookHandler;
-import com.example.team3trimcommercepaymentproject.domain.payment.service.PaymentService;
 import com.example.team3trimcommercepaymentproject.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/payments")
 public class PaymentController {
 
-    private final PaymentService paymentService;
+
+    private final PaymentFacade paymentFacade;
     private final PortOneWebhookHandler portOneWebhookHandler;
 
     @PostMapping("/confirm")
@@ -24,7 +25,7 @@ public class PaymentController {
             @RequestBody PaymentConfirmRequest request
     ) {
 
-        PaymentConfirmResponse response = paymentService.confirm(memberId, request);
+        PaymentConfirmResponse response = paymentFacade.confirm(memberId, request);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
