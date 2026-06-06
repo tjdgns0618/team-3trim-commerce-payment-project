@@ -6,6 +6,7 @@ import com.example.team3trimcommercepaymentproject.domain.orderItem.entity.Order
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.request.PaymentConfirmRequest;
 import com.example.team3trimcommercepaymentproject.domain.payment.dto.response.PaymentConfirmResponse;
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment;
+import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOneClient;
 import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOnePaymentInfo;
 import com.example.team3trimcommercepaymentproject.domain.payment.repository.PaymentRepository;
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
@@ -26,8 +27,8 @@ public class PaymentService {
 
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
-	private final PointTransactionService  pointTransactionService;
-
+    private final PointTransactionService pointTransactionService;
+    private final PortOneClient portOneClient;
 
 
     /**
@@ -37,7 +38,6 @@ public class PaymentService {
     public PaymentConfirmResponse confirm(Long memberId, PaymentConfirmRequest confirmRequest) {
 
         Long orderId = confirmRequest.orderId();
-
         String portonePaymentId = confirmRequest.portonePaymentId();
 
         Order order = orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
@@ -53,14 +53,34 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_NOT_FOUND);
         }
 
+        if (payment.isPaid()) {
+            return toConfirmResponse(order, payment);
+        }
+
+        PortOnePaymentInfo paymentInfo = portOneClient.getPayment(portonePaymentId);
+
+        if (!paymentInfo.isPaid()) {
+            cancelOrderBecausePaymentFailed(order, payment);
+
+            orderRepository.save(order);
+            paymentRepository.save(payment);
+
+            return toConfirmResponse(order, payment);
+        }
+
+        validateAmount(payment, paymentInfo);
+
         PaymentConfirmResponse response = finalizePayment(order, payment);
 
-		if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L)	{
-			pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
-		}
-		pointTransactionService.earnPoint(
-			order.getMember().getId(), payment, payment.getEarnedPoint()
-		);
+        if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L) {
+            pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
+        }
+
+        if (payment.getEarnedPoint() != null && payment.getEarnedPoint() > 0L) {
+            pointTransactionService.earnPoint(
+                    order.getMember().getId(), payment, payment.getEarnedPoint()
+            );
+        }
 
         orderRepository.save(order);
         paymentRepository.save(payment);
@@ -84,13 +104,33 @@ public class PaymentService {
         if (payment.isPaid()) {
             return;
         }
+
         if (paymentInfo.isPaid()) {
             validateAmount(payment, paymentInfo);
             finalizePayment(order, payment);
+
+
+            if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L) {
+                pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
+            }
+
+            if (payment.getEarnedPoint() != null && payment.getEarnedPoint() > 0L) {
+                pointTransactionService.earnPoint(
+                        order.getMember().getId(), payment, payment.getEarnedPoint()
+                );
+            }
+            orderRepository.save(order);
+            paymentRepository.save(payment);
+
             return;
         }
+
         if (paymentInfo.isFailed()) {
             cancelOrderBecausePaymentFailed(order, payment);
+
+            orderRepository.save(order);
+            paymentRepository.save(payment);
+
             return;
         }
         throw new BusinessException(ErrorCode.PAYMENT_NOT_FOUND);
