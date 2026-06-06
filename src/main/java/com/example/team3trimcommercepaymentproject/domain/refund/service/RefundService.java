@@ -14,11 +14,14 @@ import com.example.team3trimcommercepaymentproject.global.exception.BusinessExce
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RefundService {
 
 	private final OrderService orderService;
@@ -32,12 +35,16 @@ public class RefundService {
 		Order order = orderService.getOrderEntity(memberId, orderId);
 
 		OrderStatus status = order.getStatus();
-		if (status != OrderStatus.PAYMENT_PENDING && status != OrderStatus.COMPLETED)
+		if (status != OrderStatus.PAYMENT_PENDING && status != OrderStatus.COMPLETED) {
+			log.warn("환불이 불가능한 상태인데 환불 요청");
 			throw new BusinessException(ErrorCode.ORDER_NOT_CANCELABLE);
+		}
 
 		Payment payment = order.getPayment();
-		if (payment == null)
+		if (payment == null) {
+			log.warn("주문에 결제 엔티티가 없습니다.");
 			throw new BusinessException(ErrorCode.PAYMENT_NOT_FOUND);
+		}
 	}
 
 

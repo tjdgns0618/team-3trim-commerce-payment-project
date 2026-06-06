@@ -2,7 +2,19 @@
 @contentType = application/json
 
 ###
-# 1. 주문 미리보기
+# 1. 로그인 (응답의 token 값을 아래 token 변수에 자동으로 복사)
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "Test1234!"
+}
+
+> {% client.global.set("token", response.body.data.accessToken); %}
+
+###
+# 2. 주문 미리보기
 POST {{baseUrl}}/orders/preview
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
@@ -12,7 +24,7 @@ Authorization: Bearer {{token}}
 }
 
 ###
-# 2. 주문, 결제 생성
+# 3. 주문, 결제 생성
 POST {{baseUrl}}/orders
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
@@ -23,18 +35,18 @@ Authorization: Bearer {{token}}
 }
 
 ###
-# 3. 결제 확정
+# 4. 결제 확정
 POST {{baseUrl}}/payments/confirm
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
     "orderId": 1,
-    "portonePaymentId": "PAY-ORD-20260605-7F374A9D-EB6C7B13"
+    "portonePaymentId": "PAY-ORD-20260605-EE4DB79F-345C040D"
 }
 
 ###
-# 4. 결제 취소
+# 5. 결제 취소
 POST {{baseUrl}}/orders/1/cancel
 Content-Type: {{contentType}}
 Authorization: Bearer {{token}}

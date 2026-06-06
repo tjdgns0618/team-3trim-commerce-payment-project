@@ -33,8 +33,6 @@ import com.example.team3trimcommercepaymentproject.domain.payment.entity.Payment
 import com.example.team3trimcommercepaymentproject.domain.payment.entity.PaymentStatus;
 import com.example.team3trimcommercepaymentproject.domain.pointTransaction.service.PointTransactionService;
 import com.example.team3trimcommercepaymentproject.domain.product.entity.Product;
-import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundItemRepository;
-import com.example.team3trimcommercepaymentproject.domain.refund.repository.RefundRepository;
 import com.example.team3trimcommercepaymentproject.global.exception.BusinessException;
 import com.example.team3trimcommercepaymentproject.global.exception.ErrorCode;
 
