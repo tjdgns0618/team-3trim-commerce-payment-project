@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -54,7 +52,7 @@ public class PaymentService {
         }
 
         if (payment.isPaid()) {
-            return toConfirmResponse(order, payment);
+            return PaymentConfirmResponse.from(order, payment);
         }
 
         PortOnePaymentInfo paymentInfo = portOneClient.getPayment(portonePaymentId);
@@ -65,22 +63,14 @@ public class PaymentService {
             orderRepository.save(order);
             paymentRepository.save(payment);
 
-            return toConfirmResponse(order, payment);
+            return PaymentConfirmResponse.from(order, payment);
         }
 
         validateAmount(payment, paymentInfo);
 
         PaymentConfirmResponse response = finalizePayment(order, payment);
 
-        if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L) {
-            pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
-        }
-
-        if (payment.getEarnedPoint() != null && payment.getEarnedPoint() > 0L) {
-            pointTransactionService.earnPoint(
-                    order.getMember().getId(), payment, payment.getEarnedPoint()
-            );
-        }
+        applyPointTransactions(order, payment);
 
         orderRepository.save(order);
         paymentRepository.save(payment);
@@ -110,15 +100,8 @@ public class PaymentService {
             finalizePayment(order, payment);
 
 
-            if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L) {
-                pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
-            }
+            applyPointTransactions(order, payment);
 
-            if (payment.getEarnedPoint() != null && payment.getEarnedPoint() > 0L) {
-                pointTransactionService.earnPoint(
-                        order.getMember().getId(), payment, payment.getEarnedPoint()
-                );
-            }
             orderRepository.save(order);
             paymentRepository.save(payment);
 
@@ -139,13 +122,13 @@ public class PaymentService {
 
     private PaymentConfirmResponse finalizePayment(Order order, Payment payment) {
         if (payment.isPaid()) {
-            return toConfirmResponse(order, payment);
+            return PaymentConfirmResponse.from(order, payment);
         }
 
         order.complete();
         payment.complete();
 
-        return toConfirmResponse(order, payment);
+        return PaymentConfirmResponse.from(order, payment);
     }
 
     private void cancelOrderBecausePaymentFailed(Order order, Payment payment) {
@@ -166,39 +149,17 @@ public class PaymentService {
         }
     }
 
-    // 나중에 삭제 될 예정
-    private String generatePortonePaymentId(String orderNumber) {
-        String random = java.util.UUID.randomUUID()
-                .toString()
-                .substring(0, 8)
-                .toUpperCase();
+    private void applyPointTransactions(Order order, Payment payment) {
+        if (payment.getUsedPoint() != null && payment.getUsedPoint() > 0L) {
+            pointTransactionService.usePoint(order.getMember().getId(), payment, payment.getUsedPoint());
+        }
 
-        return "PAY-" + orderNumber + "-" + random;
+        if (payment.getEarnedPoint() != null && payment.getEarnedPoint() > 0L) {
+            pointTransactionService.earnPoint(
+                    order.getMember().getId(), payment, payment.getEarnedPoint()
+            );
+        }
     }
-
-    private String generateOrderNumber() {
-        String date = java.time.LocalDate.now()
-                .format(DateTimeFormatter.BASIC_ISO_DATE);
-
-        String random = java.util.UUID.randomUUID()
-                .toString()
-                .substring(0, 8)
-                .toUpperCase();
-        return "ORD-" + date + "-" + random;
-    }
-
-    private PaymentConfirmResponse toConfirmResponse(Order order, Payment payment) {
-        return new PaymentConfirmResponse(
-                order.getId(),
-                order.getOrderNumber(),
-                order.getStatus(),
-                payment.getStatus(),
-                payment.getPgAmount(),
-                payment.getUsedPoint(),
-                payment.getEarnedPoint()
-        );
-    }
-
 
 }
 
