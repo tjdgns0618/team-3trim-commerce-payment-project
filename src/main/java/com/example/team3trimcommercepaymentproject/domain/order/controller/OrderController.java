@@ -9,6 +9,7 @@ import com.example.team3trimcommercepaymentproject.domain.order.service.OrderSer
 import com.example.team3trimcommercepaymentproject.global.jwt.JwtProvider;
 import com.example.team3trimcommercepaymentproject.global.response.ApiResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,7 @@ public class OrderController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<OrderCreateResponse>> create(
 		@AuthenticationPrincipal Long memberId,
-		@RequestBody OrderCreateRequest request
+		@Valid @RequestBody OrderCreateRequest request
 	) {
 		OrderCreateResponse response = orderService.createOrderWithPayment(memberId, request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response));
