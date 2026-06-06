@@ -4,10 +4,13 @@ import com.example.team3trimcommercepaymentproject.domain.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+
+import jakarta.persistence.LockModeType;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -22,6 +25,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             Pageable pageable
     );
 
+	@Query("""
+    SELECT o
+    FROM Order o
+    JOIN FETCH o.payment
+    JOIN FETCH o.orderItems oi
+    JOIN FETCH oi.product
+    WHERE o.id = :orderId
+    AND o.member.id = :memberId
+""")
+	Optional<Order> findOrderDetailByIdAndMemberId(
+		@Param("orderId") Long orderId,
+		@Param("memberId") Long memberId
+	);
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
     SELECT o
     FROM Order o
@@ -31,7 +49,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     WHERE o.id = :orderId
     AND o.member.id = :memberId
 """)
-    Optional<Order> findOrderDetailByIdAndMemberId(
+    Optional<Order> findOrderDetailByIdAndMemberIdWithLock(
             @Param("orderId") Long orderId,
             @Param("memberId") Long memberId
     );
