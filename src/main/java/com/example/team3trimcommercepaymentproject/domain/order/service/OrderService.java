@@ -10,6 +10,7 @@ import com.example.team3trimcommercepaymentproject.domain.order.dto.request.Orde
 import com.example.team3trimcommercepaymentproject.domain.order.dto.response.*;
 import com.example.team3trimcommercepaymentproject.domain.order.entity.Order;
 import com.example.team3trimcommercepaymentproject.domain.order.dto.OrderCancelDTO;
+import com.example.team3trimcommercepaymentproject.domain.order.entity.OrderStatus;
 import com.example.team3trimcommercepaymentproject.domain.order.repository.OrderRepository;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderItemResponse;
 import com.example.team3trimcommercepaymentproject.domain.orderItem.dto.response.OrderPreviewItemResponse;
