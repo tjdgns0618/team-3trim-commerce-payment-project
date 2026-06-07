@@ -67,23 +67,24 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
 
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
-        id: login-ecr
 
       - name: Build and push Docker image
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.registry }}
-          IMAGE_TAG: ${{ steps.vars.outputs.short_sha }}
         run: |
+          SHORT_SHA=${{ steps.vars.outputs.short_sha }}
+          IMAGE_URI=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+
           docker build --platform linux/arm64 \
-            -t $ECR_REGISTRY/$ECR_REGISTRY:$IMAGE_TAG \
-            -t $ECR_REGISTRY/$ECR_REGISTRY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+            -t $IMAGE_URI:$SHORT_SHA \
+            -t $IMAGE_URI:latest .
+
+          docker push $IMAGE_URI:$SHORT_SHA
+          docker push $IMAGE_URI:latest
+
+          echo "✅ Pushed: $IMAGE_URI:$SHORT_SHA"
 
   deploy:
     needs: build
