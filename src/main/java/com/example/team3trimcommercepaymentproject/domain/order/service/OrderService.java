@@ -44,7 +44,7 @@ public class OrderService {
     private final PointTransactionService pointTransactionService;
 
     @Transactional(readOnly = true)
-    public Order getOrderEntity(Long orderId, Long memberId) {
+    public Order getOrderEntity(Long memberId, Long orderId) {
         return orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
             .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
