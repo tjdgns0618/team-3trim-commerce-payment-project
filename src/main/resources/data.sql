@@ -1,6 +1,6 @@
 USE commerce_payment;
 
-INSERT INTO categories (name, created_at, modified_at)
+INSERT IGNORE INTO categories (name, created_at, modified_at)
 VALUES
     ('전자기기', NOW(), NOW()),
     ('의류', NOW(), NOW()),
@@ -8,7 +8,7 @@ VALUES
     ('생활용품', NOW(), NOW()),
     ('도서', NOW(), NOW());
 
-INSERT INTO products (category_id, name, price, stock_quantity, description, sale_status, created_at, modified_at)
+INSERT IGNORE INTO products (category_id, name, price, stock_quantity, description, sale_status, created_at, modified_at)
 VALUES
     (1, '무선 마우스', 29000, 120, '그립감이 편한 블루투스 무선 마우스입니다.', 'ON_SALE', NOW(), NOW()),
     (1, '기계식 키보드', 89000, 45, '청축 기반의 기계식 키보드입니다.', 'ON_SALE', NOW(), NOW()),

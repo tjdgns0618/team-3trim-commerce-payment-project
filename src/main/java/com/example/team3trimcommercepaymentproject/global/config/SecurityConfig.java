@@ -42,20 +42,21 @@ public class SecurityConfig {
 					);
 				})
 			)
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(toStaticResources().atCommonLocations()).permitAll()
-						.requestMatchers(
-								"/",
-								"/index.html",
-								"/config.js",
-								"/subscription.html",
-								"/favicon.*"
-						).permitAll()
-						.requestMatchers("/login", "/signup").permitAll()
-						.requestMatchers("/orders/**", "/products/**", "/carts/**", "/payments/**").permitAll()
-						.requestMatchers("/error").permitAll()
-						.anyRequest().authenticated()
-				)
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(toStaticResources().atCommonLocations()).permitAll()
+				.requestMatchers(
+					"/",
+					"/index.html",
+					"/config.js",
+					"/subscription.html",
+					"/favicon.*"
+				).permitAll()
+				.requestMatchers("/login", "/signup").permitAll()
+				.requestMatchers("/orders/**", "/products/**", "/carts/**", "/payments/**").permitAll()
+				.requestMatchers("/error").permitAll()
+				.requestMatchers("/actuator/health").permitAll()
+				.anyRequest().authenticated()
+			)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
