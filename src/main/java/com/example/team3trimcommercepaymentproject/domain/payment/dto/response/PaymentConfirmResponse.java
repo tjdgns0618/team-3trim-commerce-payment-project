@@ -15,4 +15,16 @@ public record PaymentConfirmResponse(
         Long earnedPoint
 ) {
 
+    public static PaymentConfirmResponse from(Order order, Payment payment) {
+        return new PaymentConfirmResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getStatus(),
+                payment.getStatus(),
+                payment.getPgAmount(),
+                payment.getUsedPoint(),
+                payment.getEarnedPoint()
+        );
+    }
+
 }
