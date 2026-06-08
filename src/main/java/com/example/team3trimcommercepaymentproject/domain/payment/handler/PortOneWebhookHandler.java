@@ -1,5 +1,6 @@
 package com.example.team3trimcommercepaymentproject.domain.payment.handler;
 
+import com.example.team3trimcommercepaymentproject.domain.payment.facade.PaymentFacade;
 import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOneClient;
 import com.example.team3trimcommercepaymentproject.domain.payment.portOne.PortOnePaymentInfo;
 import com.example.team3trimcommercepaymentproject.domain.payment.service.PaymentService;
@@ -18,7 +19,7 @@ public class PortOneWebhookHandler {
 
     private final PortOneWebhookVerifer portOneWebhookVerifier;
     private final PortOneClient portOneClient;
-    private final PaymentService paymentService;
+    private final PaymentFacade paymentFacade;
     private final ObjectMapper objectMapper;
 
     public void handle(String signature, String body) {
@@ -28,7 +29,7 @@ public class PortOneWebhookHandler {
 
         PortOnePaymentInfo paymentInfo = portOneClient.getPayment(portonePaymentId);
 
-        paymentService.processPortOnePaymentResult(portonePaymentId, paymentInfo);
+        paymentFacade.processPortOnePaymentResult(portonePaymentId, paymentInfo);
     }
 
 
