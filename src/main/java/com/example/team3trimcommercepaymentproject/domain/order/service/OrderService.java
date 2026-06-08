@@ -45,7 +45,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Order getOrderEntity(Long orderId, Long memberId) {
-        return orderRepository.findOrderDetailByIdAndMemberId(orderId, memberId)
+        return orderRepository.findOrderDetailByIdAndMemberId(memberId, orderId)
             .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
     }
 
@@ -120,9 +120,6 @@ public class OrderService {
     @Transactional
     public OrderCreateResponse createOrderWithPayment(Long memberId, OrderCreateRequest request) {
 
-        if (orderRepository.existsByMemberIdAndStatus(memberId, OrderStatus.PAYMENT_PENDING)) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_CANCELABLE);
-        }
 
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_EMPTY));
