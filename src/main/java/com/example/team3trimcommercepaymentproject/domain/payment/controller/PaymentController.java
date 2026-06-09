@@ -31,7 +31,7 @@ public class PaymentController {
 
     @PostMapping("/webhooks/portone")
     public ResponseEntity<ApiResponse<Void>> receiveWebhook(
-            @RequestHeader("PortOne-Webhook-Signature") String signature,
+            @RequestHeader(value = "PortOne-Webhook-Signature", required = false) String signature,
             @RequestBody String body
     ) {
         portOneWebhookHandler.handle(signature, body);

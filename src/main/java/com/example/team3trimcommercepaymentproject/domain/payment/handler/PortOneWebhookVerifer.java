@@ -8,8 +8,9 @@ import org.springframework.stereotype.Component;
 public class PortOneWebhookVerifer {
 
     public void verify(String signatuer, String body){
-        if (signatuer == null || signatuer.isBlank()){
+        if (body == null || body.isBlank()) {
             throw new BusinessException(ErrorCode.INVALID_INPUT);
         }
     }
+
 }
