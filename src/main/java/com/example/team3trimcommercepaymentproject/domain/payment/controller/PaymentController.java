@@ -19,15 +19,15 @@ public class PaymentController {
     private final PaymentFacade paymentFacade;
     private final PortOneWebhookHandler portOneWebhookHandler;
 
-//    @PostMapping("/confirm")
-//    public ResponseEntity<ApiResponse<PaymentConfirmResponse>> confirm(
-//            @AuthenticationPrincipal Long memberId,
-//            @RequestBody PaymentConfirmRequest request
-//    ) {
-//
-//        PaymentConfirmResponse response = paymentFacade.confirm(memberId, request);
-//        return ResponseEntity.ok(ApiResponse.ok(response));
-//    }
+    @PostMapping("/confirm")
+    public ResponseEntity<ApiResponse<PaymentConfirmResponse>> confirm(
+            @AuthenticationPrincipal Long memberId,
+            @RequestBody PaymentConfirmRequest request
+    ) {
+
+        PaymentConfirmResponse response = paymentFacade.confirm(memberId, request);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
 
     @PostMapping("/webhooks/portone")
     public ResponseEntity<ApiResponse<Void>> receiveWebhook(
@@ -39,18 +39,5 @@ public class PaymentController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    @PostMapping("/confirm")
-    public ResponseEntity<?> confirm(
-            @AuthenticationPrincipal Long memberId,
-            @RequestBody PaymentConfirmRequest request
-    ) {
-        try {
-            PaymentConfirmResponse response = paymentFacade.confirm(memberId, request);
-            return ResponseEntity.ok(ApiResponse.ok(response));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(500)
-                    .body(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
+
 }
