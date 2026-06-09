@@ -13,18 +13,18 @@ const CONFIG = {
    * PortOne 스토어 ID
    * 콘솔 > 내 식별코드 > 가맹점 식별코드(Store ID)
    */
-  storeId: "store-여기에-포트원-스토어-ID",
+  storeId:  "store-8303a473-9aff-4840-9d4a-b08548a2f756",
 
   /**
    * 일반 결제 채널 키 :KG이니시스 인증결제 채널
    * 콘솔 > 결제 연동 > 채널 목록 > KG이니시스(인증) 채널의 채널 키
    */
-  channelKey: "channel-key-여기에-채널-키",
+  channelKey: "channel-key-fe5e0046-db92-4186-abe6-1068ea1b196b",
 
   /**
    * 구독(빌링키) 채널 키 :토스페이먼츠 빌링키 채널
    * 콘솔 > 결제 연동 > 채널 목록 > 토스페이먼츠(빌링) 채널의 채널 키
    */
-  subscriptionChannelKey: "channel-key-여기에-토스-구독-키",
+  subscriptionChannelKey: "channel-key-fe5e0046-db92-4186-abe6-1068ea1b196b",
 
 };
